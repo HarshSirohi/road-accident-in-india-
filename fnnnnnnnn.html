@@ -1,0 +1,368 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Road Accident Analysis Dashboard</title>
+    <script src="https://cdn.plot.ly/plotly-latest.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f5f5f5;
+        }
+        .dashboard-container {
+            background-color: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 0 10px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+        .metric-card {
+            background-color: #f8f9fa;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        .metric-value {
+            font-size: 24px;
+            font-weight: bold;
+            color: #007bff;
+        }
+        .filter-section {
+            background-color: #e9ecef;
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+        }
+        .chart-container {
+            margin-bottom: 30px;
+        }
+        .prediction-section {
+            background-color: #e9ecef;
+            padding: 20px;
+            border-radius: 8px;
+            margin-top: 20px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1 class="text-center mb-4">Road Accident Analysis Dashboard (2018-2020)</h1>
+        
+        <!-- Filters Section -->
+        <div class="filter-section">
+            <div class="row">
+                <div class="col-md-6">
+                    <label for="yearSelect">Select Years:</label>
+                    <select id="yearSelect" class="form-select" multiple>
+                        <option value="2018">2018</option>
+                        <option value="2019">2019</option>
+                        <option value="2020">2020</option>
+                    </select>
+                </div>
+                <div class="col-md-6">
+                    <label for="stateSelect">Select States:</label>
+                    <select id="stateSelect" class="form-select" multiple>
+                        <option value="Maharashtra">Maharashtra</option>
+                        <option value="Uttar Pradesh">Uttar Pradesh</option>
+                        <option value="Tamil Nadu">Tamil Nadu</option>
+                        <option value="Karnataka">Karnataka</option>
+                        <option value="Gujarat">Gujarat</option>
+                        <option value="Rajasthan">Rajasthan</option>
+                        <option value="Madhya Pradesh">Madhya Pradesh</option>
+                        <option value="West Bengal">West Bengal</option>
+                        <option value="Andhra Pradesh">Andhra Pradesh</option>
+                        <option value="Kerala">Kerala</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+
+        <!-- Metrics Section -->
+        <div class="row">
+            <div class="col-md-4">
+                <div class="metric-card">
+                    <h5>Total Accidents</h5>
+                    <div class="metric-value" id="totalAccidents">0</div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="metric-card">
+                    <h5>Total Fatalities</h5>
+                    <div class="metric-value" id="totalFatalities">0</div>
+                </div>
+            </div>
+            <div class="col-md-4">
+                <div class="metric-card">
+                    <h5>Total Injuries</h5>
+                    <div class="metric-value" id="totalInjuries">0</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Charts Section -->
+        <div class="dashboard-container">
+            <h3>Accident Trends</h3>
+            <div id="trendChart" class="chart-container"></div>
+        </div>
+
+        <!-- Prediction Section -->
+        <div class="prediction-section">
+            <h3>Accident Prediction</h3>
+            <div class="row">
+                <div class="col-md-4">
+                    <div class="mb-3">
+                        <label for="predYear" class="form-label">Select Year</label>
+                        <select id="predYear" class="form-select">
+                            <option value="2025">2025</option>
+                            <option value="2026">2026</option>
+                            <option value="2027">2027</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="predState" class="form-label">Select State</label>
+                        <select id="predState" class="form-select">
+                            <option value="Maharashtra">Maharashtra</option>
+                            <option value="Uttar Pradesh">Uttar Pradesh</option>
+                            <option value="Tamil Nadu">Tamil Nadu</option>
+                            <option value="Karnataka">Karnataka</option>
+                            <option value="Gujarat">Gujarat</option>
+                            <option value="Rajasthan">Rajasthan</option>
+                            <option value="Madhya Pradesh">Madhya Pradesh</option>
+                            <option value="West Bengal">West Bengal</option>
+                            <option value="Andhra Pradesh">Andhra Pradesh</option>
+                            <option value="Kerala">Kerala</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="mb-3">
+                        <label for="predWeather" class="form-label">Weather Condition</label>
+                        <select id="predWeather" class="form-select">
+                            <option value="Clear">Clear</option>
+                            <option value="Rainy">Rainy</option>
+                            <option value="Foggy">Foggy</option>
+                            <option value="Stormy">Stormy</option>
+                        </select>
+                    </div>
+                    <div class="mb-3">
+                        <label for="predRoad" class="form-label">Road Condition</label>
+                        <select id="predRoad" class="form-select">
+                            <option value="Good">Good</option>
+                            <option value="Average">Average</option>
+                            <option value="Poor">Poor</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="col-md-4">
+                    <div class="mb-3">
+                        <label for="predTime" class="form-label">Time of Day</label>
+                        <select id="predTime" class="form-select">
+                            <option value="Morning">Morning</option>
+                            <option value="Afternoon">Afternoon</option>
+                            <option value="Evening">Evening</option>
+                            <option value="Night">Night</option>
+                        </select>
+                    </div>
+                    <button id="predictBtn" class="btn btn-primary mt-4">Predict</button>
+                    <div id="predictionResult" class="mt-3"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Additional Analysis -->
+        <div class="dashboard-container">
+            <h3>Accident Distribution by Time and Weather</h3>
+            <div id="heatmapChart" class="chart-container"></div>
+        </div>
+    </div>
+
+    <script>
+        // Sample data (in a real scenario, this would come from an API)
+        const generateData = () => {
+            const years = [2018, 2019, 2020];
+            const states = ['Maharashtra', 'Uttar Pradesh', 'Tamil Nadu', 'Karnataka', 'Gujarat', 
+                          'Rajasthan', 'Madhya Pradesh', 'West Bengal', 'Andhra Pradesh', 'Kerala'];
+            const weatherConditions = ['Clear', 'Rainy', 'Foggy', 'Stormy'];
+            const roadConditions = ['Good', 'Average', 'Poor'];
+            const timeOfDay = ['Morning', 'Afternoon', 'Evening', 'Night'];
+            
+            let data = [];
+            years.forEach(year => {
+                states.forEach(state => {
+                    const accidents = Math.floor(Math.random() * 9000) + 1000;
+                    const fatalities = Math.floor(accidents * (Math.random() * 0.2 + 0.1));
+                    const injuries = Math.floor(accidents * (Math.random() * 0.4 + 0.3));
+                    
+                    data.push({
+                        year,
+                        state,
+                        accidents,
+                        fatalities,
+                        injuries,
+                        weather: weatherConditions[Math.floor(Math.random() * weatherConditions.length)],
+                        road: roadConditions[Math.floor(Math.random() * roadConditions.length)],
+                        time: timeOfDay[Math.floor(Math.random() * timeOfDay.length)]
+                    });
+                });
+            });
+            return data;
+        };
+
+        let data = generateData();
+
+        // Update metrics
+        const updateMetrics = (filteredData) => {
+            const totalAccidents = filteredData.reduce((sum, item) => sum + item.accidents, 0);
+            const totalFatalities = filteredData.reduce((sum, item) => sum + item.fatalities, 0);
+            const totalInjuries = filteredData.reduce((sum, item) => sum + item.injuries, 0);
+
+            document.getElementById('totalAccidents').textContent = totalAccidents.toLocaleString();
+            document.getElementById('totalFatalities').textContent = totalFatalities.toLocaleString();
+            document.getElementById('totalInjuries').textContent = totalInjuries.toLocaleString();
+        };
+
+        // Update trend chart
+        const updateTrendChart = (filteredData) => {
+            const yearData = {};
+            filteredData.forEach(item => {
+                if (!yearData[item.year]) {
+                    yearData[item.year] = 0;
+                }
+                yearData[item.year] += item.accidents;
+            });
+
+            const trace = {
+                x: Object.keys(yearData),
+                y: Object.values(yearData),
+                type: 'scatter',
+                mode: 'lines+markers',
+                name: 'Accidents'
+            };
+
+            const layout = {
+                title: 'Accident Trends Over Years',
+                xaxis: { title: 'Year' },
+                yaxis: { title: 'Number of Accidents' }
+            };
+
+            Plotly.newPlot('trendChart', [trace], layout);
+        };
+
+        // Update heatmap
+        const updateHeatmap = (filteredData) => {
+            const heatmapData = {};
+            const times = ['Morning', 'Afternoon', 'Evening', 'Night'];
+            const weathers = ['Clear', 'Rainy', 'Foggy', 'Stormy'];
+
+            times.forEach(time => {
+                heatmapData[time] = {};
+                weathers.forEach(weather => {
+                    heatmapData[time][weather] = 0;
+                });
+            });
+
+            filteredData.forEach(item => {
+                heatmapData[item.time][item.weather] += item.accidents;
+            });
+
+            const z = times.map(time => 
+                weathers.map(weather => heatmapData[time][weather])
+            );
+
+            const trace = {
+                z: z,
+                x: weathers,
+                y: times,
+                type: 'heatmap',
+                colorscale: 'Viridis'
+            };
+
+            const layout = {
+                title: 'Accident Distribution by Time and Weather',
+                xaxis: { title: 'Weather Condition' },
+                yaxis: { title: 'Time of Day' }
+            };
+
+            Plotly.newPlot('heatmapChart', [trace], layout);
+        };
+
+        // Filter data based on selections
+        const filterData = () => {
+            const selectedYears = Array.from(document.getElementById('yearSelect').selectedOptions)
+                .map(option => parseInt(option.value));
+            const selectedStates = Array.from(document.getElementById('stateSelect').selectedOptions)
+                .map(option => option.value);
+
+            return data.filter(item => 
+                (selectedYears.length === 0 || selectedYears.includes(item.year)) &&
+                (selectedStates.length === 0 || selectedStates.includes(item.state))
+            );
+        };
+
+        // Update all visualizations
+        const updateAll = () => {
+            const filteredData = filterData();
+            updateMetrics(filteredData);
+            updateTrendChart(filteredData);
+            updateHeatmap(filteredData);
+        };
+
+        // Event listeners
+        document.getElementById('yearSelect').addEventListener('change', updateAll);
+        document.getElementById('stateSelect').addEventListener('change', updateAll);
+
+        // Prediction function
+        document.getElementById('predictBtn').addEventListener('click', () => {
+            const year = parseInt(document.getElementById('predYear').value);
+            const state = document.getElementById('predState').value;
+            const weather = document.getElementById('predWeather').value;
+            const road = document.getElementById('predRoad').value;
+            const time = document.getElementById('predTime').value;
+
+            // Simple prediction model (in a real scenario, this would use a trained model)
+            const baseAccidents = 5000;
+            const yearFactor = (year - 2020) * 0.1;
+            const weatherFactors = {
+                'Clear': 1.0,
+                'Rainy': 1.5,
+                'Foggy': 2.0,
+                'Stormy': 2.5
+            };
+            const roadFactors = {
+                'Good': 1.0,
+                'Average': 1.3,
+                'Poor': 1.7
+            };
+            const timeFactors = {
+                'Morning': 1.2,
+                'Afternoon': 1.0,
+                'Evening': 1.5,
+                'Night': 2.0
+            };
+
+            const prediction = Math.round(
+                baseAccidents * 
+                (1 + yearFactor) * 
+                weatherFactors[weather] * 
+                roadFactors[road] * 
+                timeFactors[time]
+            );
+
+            document.getElementById('predictionResult').innerHTML = `
+                <div class="alert alert-success">
+                    <h4>Predicted Accidents: ${prediction.toLocaleString()}</h4>
+                    <p>Based on the selected conditions, the model predicts approximately ${prediction.toLocaleString()} accidents.</p>
+                </div>
+            `;
+        });
+
+        // Initialize
+        updateAll();
+    </script>
+</body>
+</html>
